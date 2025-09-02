@@ -25,25 +25,40 @@ df = pd.DataFrame(data)
 if df.empty or "Name" not in df.columns:
     st.write("Noch keine Tipps vorhanden.")
 else:
+    # Liste aller Disziplinen: (Spaltenprefix, Siegerliste aus sieger.py)
+    disziplinen = [
+        ("100mM", sieger.ohmm),
+        ("100mW", sieger.ohmw),
+        ("200mM", sieger.m200),
+        ("1500mM", sieger.m1500),
+        ("HindernisM", sieger.hind),
+        ("Diskus", sieger.diskus),
+        ("Stab", sieger.stab),
+        ("Speer", sieger.speer),
+        ("Zehnkampf", sieger.zehn),
+        ("100mHürdenW", sieger.h100w),
+        ("400mHürdenW", sieger.h400w),
+        ("800mW", sieger.f800),
+        ("Weitsprung", sieger.weitsprung),
+        ("Hochsprung", sieger.hoch),
+        ("Kugel", sieger.kugel),
+        ("Staffel100mM", sieger.staffel100m),
+        ("Staffel100mW", sieger.staffel100w),
+        ("Staffel400mM", sieger.staffel400m),
+        ("Staffel400mW", sieger.staffel400w),
+    ]
+
     # Punkteberechnung für alle Teilnehmer
     for idx, row in df.iterrows():
-        hmm = [row["100mM1"], row["100mM2"], row["100mM3"]]
-        hmw = [row["100mW1"], row["100mW2"], row["100mW3"]]
         punkte = 0
 
-        # 100m Männer
-        for i, val in enumerate(hmm):
-            if val == sieger.ohmm[i]:
-                punkte += 2
-            elif val in sieger.ohmm:
-                punkte += 1
-
-        # 100m Frauen
-        for i, val in enumerate(hmw):
-            if val == sieger.ohmw[i]:
-                punkte += 2
-            elif val in sieger.ohmw:
-                punkte += 1
+        for prefix, richtige_reihenfolge in disziplinen:
+            tipps = [row.get(f"{prefix}1", ""), row.get(f"{prefix}2", ""), row.get(f"{prefix}3", "")]
+            for i, val in enumerate(tipps):
+                if val == richtige_reihenfolge[i]:
+                    punkte += 2
+                elif val in richtige_reihenfolge:
+                    punkte += 1
 
         # Punkte in Sheet aktualisieren
         row_idx = idx + 2
