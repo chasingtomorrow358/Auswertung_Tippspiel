@@ -17,10 +17,14 @@ sheet = client.open_by_key(st.secrets["gspread"]["sheet_id"]).sheet1
 st.title("🏆 VFV Spandau Tippspiel - Leaderboard / Auswertung")
 
 # -------------------------------
-# Daten aus Google Sheet
+# Daten aus Google Sheet laden (Cache)
 # -------------------------------
-data = sheet.get_all_records()
-df = pd.DataFrame(data)
+@st.cache_data(ttl=60)
+def load_sheet_data():
+    data = sheet.get_all_records()
+    return pd.DataFrame(data)
+
+df = load_sheet_data()
 
 if df.empty or "Name" not in df.columns:
     st.write("Noch keine Tipps vorhanden.")
@@ -49,6 +53,7 @@ else:
     ]
 
     # Punkteberechnung für alle Teilnehmer
+    updates = []  # Liste für Batch-Update
     for idx, row in df.iterrows():
         punkte = 0
 
@@ -60,13 +65,17 @@ else:
                 elif val in richtige_reihenfolge:
                     punkte += 1
 
-        # Punkte in Sheet aktualisieren
-        row_idx = idx + 2
-        col_idx = df.columns.get_loc("Punkte") + 1
-        sheet.update_cell(row_idx, col_idx, punkte)
+        df.at[idx, "Punkte"] = punkte
+        updates.append(punkte)
+
+    # Batch-Update der Punkte-Spalte
+    col_idx = df.columns.get_loc("Punkte") + 1
+    cell_list = sheet.range(2, col_idx, len(df) + 1, col_idx)
+    for cell, punkte in zip(cell_list, updates):
+        cell.value = punkte
+    sheet.update_cells(cell_list)
 
     # Leaderboard anzeigen
-    df["Punkte"] = pd.to_numeric(df["Punkte"], errors="coerce")
     leaderboard = df[["Name", "Punkte"]].sort_values(by="Punkte", ascending=False)
     st.subheader("🏅 Leaderboard")
     st.dataframe(leaderboard)
