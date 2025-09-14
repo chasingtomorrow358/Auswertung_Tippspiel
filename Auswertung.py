@@ -32,8 +32,8 @@ else:
     # Liste aller Disziplinen: (Spaltenprefix, Siegerliste aus sieger.py)
     disziplinen = [
         ("100mM", sieger.ohmm),
-        ("200mM", sieger.m200),
-        ("1500mM", sieger.m1500),
+        ("m200", sieger.m200),
+        ("m1500", sieger.m1500),
         ("Speer", sieger.speer),
         ("Zehnkampf", sieger.zehn),
         ("100mW", sieger.ohmw),
