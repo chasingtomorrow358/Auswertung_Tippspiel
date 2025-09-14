@@ -56,7 +56,7 @@ else:
             tipps = [row.get(f"{prefix}1", ""), row.get(f"{prefix}2", ""), row.get(f"{prefix}3", "")]
             for i, val in enumerate(tipps):
                 if val == richtige_reihenfolge[i]:
-                    punkte += 2
+                    punkte += 3
                 elif val in richtige_reihenfolge:
                     punkte += 1
 
