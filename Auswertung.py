@@ -47,30 +47,56 @@ else:
         ("Staffel400mW", sieger.staffel400w),
     ]
 
-    # Punkteberechnung für alle Teilnehmer
-    updates = []  # Liste für Batch-Update
-    for idx, row in df.iterrows():
-        punkte = 0
+# -------------------------------
+# Hilfsfunktion zum Vergleich von Namen
+# -------------------------------
+def normalize_name(name):
+    """Normalisiert Namen für robusteren Vergleich"""
+    if not isinstance(name, str):
+        return ""
+    return (
+        name.strip()
+        .lower()
+        .replace("-", "")
+        .replace(" ", "")
+    )
 
-        for prefix, richtige_reihenfolge in disziplinen:
-            tipps = [row.get(f"{prefix}1", ""), row.get(f"{prefix}2", ""), row.get(f"{prefix}3", "")]
-            for i, val in enumerate(tipps):
-                if val == richtige_reihenfolge[i]:
-                    punkte += 3
-                elif val in richtige_reihenfolge:
-                    punkte += 1
+# -------------------------------
+# Punkteberechnung für alle Teilnehmer
+# -------------------------------
+updates = []  # Liste für Batch-Update
+for idx, row in df.iterrows():
+    punkte = 0
 
-        df.at[idx, "Punkte"] = punkte
-        updates.append(punkte)
+    for prefix, richtige_reihenfolge in disziplinen:
+        tipps = [
+            row.get(f"{prefix}1", ""),
+            row.get(f"{prefix}2", ""),
+            row.get(f"{prefix}3", "")
+        ]
 
-    # Batch-Update der Punkte-Spalte
-    col_idx = df.columns.get_loc("Punkte") + 1
-    cell_list = sheet.range(2, col_idx, len(df) + 1, col_idx)
-    for cell, punkte in zip(cell_list, updates):
-        cell.value = punkte
-    sheet.update_cells(cell_list)
+        for i, val in enumerate(tipps):
+            if normalize_name(val) == normalize_name(richtige_reihenfolge[i]):
+                punkte += 3   # exakte Position
+            elif normalize_name(val) in [normalize_name(x) for x in richtige_reihenfolge]:
+                punkte += 1   # in Top 3, aber falsche Position
 
-    # Leaderboard anzeigen
-    leaderboard = df[["Name", "Punkte"]].sort_values(by="Punkte", ascending=False)
-    st.subheader("🏅 Leaderboard")
-    st.dataframe(leaderboard)
+    df.at[idx, "Punkte"] = punkte
+    updates.append(punkte)
+
+# -------------------------------
+# Batch-Update der Punkte-Spalte
+# -------------------------------
+col_idx = df.columns.get_loc("Punkte") + 1
+cell_list = sheet.range(2, col_idx, len(df) + 1, col_idx)
+for cell, punkte in zip(cell_list, updates):
+    cell.value = punkte
+sheet.update_cells(cell_list)
+
+# -------------------------------
+# Leaderboard anzeigen
+# -------------------------------
+leaderboard = df[["Name", "Punkte"]].sort_values(by="Punkte", ascending=False)
+st.subheader("🏅 Leaderboard")
+st.dataframe(leaderboard)
+
