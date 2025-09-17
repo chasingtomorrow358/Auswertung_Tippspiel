@@ -1,6 +1,6 @@
 ohmm = ["Seville", "Thompson", "Lyles"]
 m200 = ["...", "...", "..."]
-m1500 = ["...", "...", "..."]
+m1500 = ["Nader", "Wightman", "Cheruiyot"]
 speer = ["...", "...", "..."]
 zehn = ["...", "...", "..."]
 ohmw = ["Jefferson-Wooden", "Clayton", "Alfred"]
