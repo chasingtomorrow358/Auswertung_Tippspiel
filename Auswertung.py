@@ -41,10 +41,10 @@ else:
         ("h400W", sieger.h400w),
         ("Weitsprung", sieger.weitsprung),
         ("hoch", sieger.hoch),
-        ("staffel100mm", sieger.staffel100m),
-        ("staffel100mw", sieger.staffel100w),
-        ("staffel400mm", sieger.staffel400m),
-        ("staffel400mw", sieger.staffel400w),
+        ("staffel100m", sieger.staffel100m),
+        ("staffel100w", sieger.staffel100w),
+        ("staffel400m", sieger.staffel400m),
+        ("staffel400w", sieger.staffel400w),
     ]
 
 # -------------------------------
